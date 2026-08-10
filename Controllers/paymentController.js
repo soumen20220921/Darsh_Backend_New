@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import pkg from "pg-sdk-node";
+import pkg from "@phonepe-pg/pg-sdk-node";
 import { Payment } from "../Models/PaymentSchema.js";
 import { Product } from "../Models/ProductSchema.js";
 const { StandardCheckoutClient, Env, StandardCheckoutPayRequest } = pkg;
