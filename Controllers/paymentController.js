@@ -224,7 +224,7 @@ export const newPayment = async (req, res) => {
     // It is NOT the webhook.
     // -----------------------------------------------
 
-    const redirectUrl =`http://localhost:8001/api/phonepe/check-status?merchantOrderId=${merchantOrderId}`;
+    const redirectUrl =`http://148.230.66.87:8001/api/phonepe/check-status?merchantOrderId=${merchantOrderId}`;
 
 
     // -----------------------------------------------
