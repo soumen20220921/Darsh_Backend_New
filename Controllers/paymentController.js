@@ -10,15 +10,15 @@ import { Bookingtherapist } from "../Models/BookTherapistSchema.js";
 
 dotenv.config();
 
-// const clientId = `SU2509251320096949558375`;
-// const clientSecret = "dd9ccd0f-e7bd-4535-98ff-a729a1c7c896";
+const clientId = `SU2509251320096949558375`;
+const clientSecret = "dd9ccd0f-e7bd-4535-98ff-a729a1c7c896";
 
-const clientId = `M235ZYM7NIZ42_2511131656`;
-const clientSecret = "OGVlMzIyMmMtM2NmOS00N2U2LWI5ZDEtODEyZWM2MWVjMGEy";
+// const clientId = `M235ZYM7NIZ42_2511131656`;
+// const clientSecret = "OGVlMzIyMmMtM2NmOS00N2U2LWI5ZDEtODEyZWM2MWVjMGEy";
 
 const clientVersion = 1;
-// const env = Env.PRODUCTION;
-const env = Env.SANDBOX; // Use TEST environment for development
+const env = Env.PRODUCTION;
+// const env = Env.SANDBOX; // Use TEST environment for development
 
 const client = StandardCheckoutClient.getInstance(
   clientId,
@@ -224,7 +224,7 @@ export const newPayment = async (req, res) => {
     // It is NOT the webhook.
     // -----------------------------------------------
 
-    const redirectUrl =`http://148.230.66.87:8001/api/phonepe/check-status?merchantOrderId=${merchantOrderId}`;
+    const redirectUrl =`https://api.darshsaree.in/api/phonepe/check-status?merchantOrderId=${merchantOrderId}`;
 
 
     // -----------------------------------------------
