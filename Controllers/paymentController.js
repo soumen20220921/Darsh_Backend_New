@@ -10,15 +10,15 @@ import { Bookingtherapist } from "../Models/BookTherapistSchema.js";
 
 dotenv.config();
 
-const clientId = `SU2509251320096949558375`;
-const clientSecret = "dd9ccd0f-e7bd-4535-98ff-a729a1c7c896";
+// const clientId = `SU2509251320096949558375`;
+// const clientSecret = "dd9ccd0f-e7bd-4535-98ff-a729a1c7c896";
 
-// const clientId = `M235ZYM7NIZ42_2511131656`;
-// const clientSecret = "OGVlMzIyMmMtM2NmOS00N2U2LWI5ZDEtODEyZWM2MWVjMGEy";
+const clientId = `M235ZYM7NIZ42_2511131656`;
+const clientSecret = "OGVlMzIyMmMtM2NmOS00N2U2LWI5ZDEtODEyZWM2MWVjMGEy";
 
 const clientVersion = 1;
-const env = Env.PRODUCTION;
-// const env = Env.SANDBOX; // Use TEST environment for development
+// const env = Env.PRODUCTION;
+const env = Env.SANDBOX; // Use TEST environment for development
 
 const client = StandardCheckoutClient.getInstance(
   clientId,
@@ -83,7 +83,7 @@ const client = StandardCheckoutClient.getInstance(
 
 // export const checkStatus = async (req, res) => {
 //   // const frontendUrl = "https://www.pomwb.com";
-//   const frontendUrl = "http://localhost:3000";
+//   const frontendUrl = "https://www.darshsaree.in";
 //   try {
 //     const { merchantOrderId } = req.query;
 //     console.log("Checking status for merchantOrderId:", merchantOrderId);
@@ -501,7 +501,7 @@ const finalizePayment = async (merchantOrderId) => {
 export const checkStatus = async (req, res) => {
 
   // const frontendUrl = "https://www.pomwb.com";
-  const frontendUrl = "http://localhost:3000";
+  const frontendUrl = "https://www.darshsaree.in";
 
   try {
 
