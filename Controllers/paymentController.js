@@ -10,9 +10,9 @@ import { Bookingtherapist } from "../Models/BookTherapistSchema.js";
 
 dotenv.config();
 
-const clientId = `SU2509251320096949558375`;
-const clientSecret = "dd9ccd0f-e7bd-4535-98ff-a729a1c7c896";
 
+const clientId =  "SU2504171113504711108609";
+const clientSecret =  "420f2f0e-41ed-4ba2-ab26-9a3bc8216460";
 // const clientId = `M235ZYM7NIZ42_2511131656`;
 // const clientSecret = "OGVlMzIyMmMtM2NmOS00N2U2LWI5ZDEtODEyZWM2MWVjMGEy";
 
