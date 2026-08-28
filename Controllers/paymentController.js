@@ -639,14 +639,14 @@ export const checkStatus = async (req, res) => {
 // ======================================================
 
 export const phonePeWebhook = async (req, res) => {
-  try {
-    console.log("🔥 PHONEPE WEBHOOK HIT");
-    console.log("BODY:", req.body);
-    console.log("HEADERS:", req.headers);
+  console.log("======================================");
+  console.log("🔥 PHONEPE WEBHOOK HIT");
+  console.log("======================================");
 
-    console.log("======================================");
-    console.log("📩 PhonePe Webhook Received");
-    console.log("======================================");
+  try {
+    console.log("BODY:", req.body);
+    console.log("RAW BODY:", req.rawBody);
+    console.log("HEADERS:", req.headers);
 
     const authorization = req.headers.authorization;
 
@@ -659,20 +659,25 @@ export const phonePeWebhook = async (req, res) => {
       });
     }
 
-    const responseBodyString =
-      Buffer.isBuffer(req.body)
-        ? req.body.toString("utf8")
-        : JSON.stringify(req.body);
+    const responseBodyString = req.rawBody;
 
-    console.log("Webhook body:", responseBodyString);
+    if (!responseBodyString) {
+      console.log("❌ Raw webhook body missing");
 
+      return res.status(400).json({
+        success: false,
+        message: "Raw body missing",
+      });
+    }
 
-    const webhookUsername = "DARSH";
+    console.log("Authorization received");
+    console.log("Raw webhook body:", responseBodyString);
+
+    // IMPORTANT
+   const webhookUsername = "DARSH";
 const webhookPassword = "Darsh2026x7";
 
     const callbackResponse = client.validateCallback(
-      // pomwb_webhook,
-      // POMWBWebhook2026X7,
       webhookUsername,
       webhookPassword,
       authorization,
@@ -682,6 +687,8 @@ const webhookPassword = "Darsh2026x7";
     console.log("✅ PhonePe callback verified");
 
     const payload = callbackResponse.payload;
+
+    console.log("PhonePe payload:", payload);
 
     const state = payload?.state;
 
@@ -701,12 +708,26 @@ const webhookPassword = "Darsh2026x7";
       });
     }
 
-    // COMPLETED
+    // ==========================================
+    // PAYMENT COMPLETED
+    // ==========================================
+
     if (state === "COMPLETED") {
-      const result = await finalizePayment(merchantOrderId);
+
+      console.log(
+        "💰 Payment COMPLETED through webhook:",
+        merchantOrderId
+      );
+
+      const result =
+        await finalizePayment(merchantOrderId);
 
       if (!result.success) {
-        console.log("❌ Could not finalize payment");
+
+        console.log(
+          "❌ Could not finalize payment:",
+          result.reason
+        );
 
         return res.status(200).json({
           success: false,
@@ -715,16 +736,20 @@ const webhookPassword = "Darsh2026x7";
       }
 
       console.log(
-        "✅ Payment completed through webhook:",
+        "✅ Webhook payment processing completed:",
         merchantOrderId
       );
     }
 
-    // FAILED
+    // ==========================================
+    // PAYMENT FAILED
+    // ==========================================
+
     else if (
       state === "FAILED" ||
       state === "DECLINED"
     ) {
+
       await Payment.findOneAndUpdate(
         {
           transactionId: merchantOrderId,
@@ -743,8 +768,12 @@ const webhookPassword = "Darsh2026x7";
       );
     }
 
-    // PENDING / PROCESSING
+    // ==========================================
+    // PENDING
+    // ==========================================
+
     else {
+
       console.log(
         "⏳ Payment still processing:",
         state
@@ -756,8 +785,9 @@ const webhookPassword = "Darsh2026x7";
     });
 
   } catch (error) {
+
     console.error(
-      "❌ PhonePe webhook error:",
+      "❌ PHONEPE WEBHOOK ERROR:",
       error
     );
 
