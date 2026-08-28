@@ -11,14 +11,14 @@ import { Bookingtherapist } from "../Models/BookTherapistSchema.js";
 dotenv.config();
 
 
-const clientId =  "SU2504171113504711108609";
-const clientSecret =  "420f2f0e-41ed-4ba2-ab26-9a3bc8216460";
-// const clientId = `M235ZYM7NIZ42_2511131656`;
-// const clientSecret = "OGVlMzIyMmMtM2NmOS00N2U2LWI5ZDEtODEyZWM2MWVjMGEy";
+// const clientId =  "SU2504171113504711108609";
+// const clientSecret =  "420f2f0e-41ed-4ba2-ab26-9a3bc8216460";
+const clientId = `M235ZYM7NIZ42_2511131656`;
+const clientSecret = "OGVlMzIyMmMtM2NmOS00N2U2LWI5ZDEtODEyZWM2MWVjMGEy";
 
 const clientVersion = 1;
-const env = Env.PRODUCTION;
-// const env = Env.SANDBOX; // Use TEST environment for development
+// const env = Env.PRODUCTION;
+const env = Env.SANDBOX; // Use TEST environment for development
 
 const client = StandardCheckoutClient.getInstance(
   clientId,
