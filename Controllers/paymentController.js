@@ -642,291 +642,298 @@ export const checkStatus = async (req, res) => {
 
 
 export const phonePeWebhook = async (req, res) => {
-  console.log("======================================");
-  console.log("🔥 PHONEPE WEBHOOK HIT");
-  console.log("======================================");
+console.log("\n======================================");
+console.log("🔥 PHONEPE WEBHOOK HIT");
+console.log("======================================");
+
+try {
+// ==========================================
+// 1. LOG REQUEST INFORMATION
+// ==========================================
+
+console.log("BODY:", req.body);
+console.log("RAW BODY:", req.rawBody);
+
+const authorization = req.headers.authorization;
+
+console.log("Authorization received:", !!authorization);
+console.log(
+  "Authorization length:",
+  authorization ? authorization.length : 0
+);
+
+// ==========================================
+// 2. CHECK AUTHORIZATION HEADER
+// ==========================================
+
+if (!authorization) {
+  console.log("❌ Missing PhonePe authorization header");
+
+  return res.status(401).json({
+    success: false,
+    message: "Missing authorization",
+  });
+}
+
+// ==========================================
+// 3. CHECK RAW BODY
+// ==========================================
+
+const responseBodyString = req.rawBody;
+
+if (!responseBodyString) {
+  console.log("❌ Raw webhook body missing");
+
+  return res.status(400).json({
+    success: false,
+    message: "Raw body missing",
+  });
+}
+
+console.log("Raw webhook body:", responseBodyString);
+
+// ==========================================
+// 4. PHONEPE WEBHOOK CREDENTIALS
+// ==========================================
+
+const webhookUsername = "DARSH";
+const webhookPassword = "Darsh2026x7";
+
+// ==========================================
+// 5. DEBUG AUTHORIZATION
+// ==========================================
+
+const expectedAuthorization = crypto
+  .createHash("sha256")
+  .update(`${webhookUsername}:${webhookPassword}`)
+  .digest("hex");
+
+console.log("\n========== PHONEPE AUTH DEBUG ==========");
+console.log(
+  "Received Authorization length:",
+  authorization.length
+);
+console.log(
+  "Expected Authorization length:",
+  expectedAuthorization.length
+);
+console.log(
+  "Authorization matches:",
+  authorization === expectedAuthorization
+);
+console.log("========================================\n");
+
+// ==========================================
+// 6. VALIDATE PHONEPE CALLBACK
+// ==========================================
+
+const callbackResponse = client.validateCallback(
+  webhookUsername,
+  webhookPassword,
+  authorization,
+  responseBodyString
+);
+
+console.log("✅ PhonePe callback verified");
+
+// ==========================================
+// 7. GET PAYLOAD
+// ==========================================
+
+const payload = callbackResponse?.payload;
+
+if (!payload) {
+  console.log("❌ PhonePe payload missing");
+
+  return res.status(400).json({
+    success: false,
+    message: "Payload missing",
+  });
+}
+
+console.log("PhonePe payload:", payload);
+
+// ==========================================
+// 8. EXTRACT PAYMENT INFORMATION
+// ==========================================
+
+const state = payload?.state;
+
+// IMPORTANT:
+// merchantOrderId = YOUR transaction ID
+// orderId = PHONEPE internal order ID
+
+const merchantOrderId = payload?.merchantOrderId;
+const phonePeOrderId = payload?.orderId;
+
+const amount = payload?.amount;
+
+console.log("\n========== PAYMENT DETAILS ==========");
+console.log("Merchant Order ID:", merchantOrderId);
+console.log("PhonePe Order ID:", phonePeOrderId);
+console.log("Payment State:", state);
+console.log("Amount:", amount);
+console.log("=====================================\n");
+
+// ==========================================
+// 9. CHECK MERCHANT ORDER ID
+// ==========================================
+
+if (!merchantOrderId) {
+  console.log("❌ Merchant Order ID missing");
+
+  return res.status(400).json({
+    success: false,
+    message: "Merchant order ID missing",
+  });
+}
+
+// ==========================================
+// 10. PAYMENT COMPLETED
+// ==========================================
+
+if (state === "COMPLETED") {
+  console.log(
+    "💰 PAYMENT COMPLETED THROUGH WEBHOOK:",
+    merchantOrderId
+  );
 
   try {
-    // ==========================================
-    // 1. LOG BASIC REQUEST INFORMATION
-    // ==========================================
+    // Use merchantOrderId, NOT PhonePe orderId
+    const result = await finalizePayment(merchantOrderId);
 
-    console.log("BODY:", req.body);
-    console.log("RAW BODY:", req.rawBody);
-
-    const authorization = req.headers.authorization;
-
-    console.log("Authorization received:", !!authorization);
-    console.log(
-      "Authorization length:",
-      authorization ? authorization.length : 0
-    );
-
-    // ==========================================
-    // 2. CHECK AUTHORIZATION HEADER
-    // ==========================================
-
-    if (!authorization) {
-      console.log("❌ Missing PhonePe authorization header");
-
-      return res.status(401).json({
-        success: false,
-        message: "Missing authorization",
-      });
-    }
-
-    // ==========================================
-    // 3. CHECK RAW BODY
-    // ==========================================
-
-    const responseBodyString = req.rawBody;
-
-    if (!responseBodyString) {
-      console.log("❌ Raw webhook body missing");
-
-      return res.status(400).json({
-        success: false,
-        message: "Raw body missing",
-      });
-    }
-
-    console.log("Raw webhook body:", responseBodyString);
-
-    // ==========================================
-    // 4. PHONEPE WEBHOOK CREDENTIALS
-    // ==========================================
-
-    const webhookUsername = "DARSH";
-    const webhookPassword = "Darsh2026x7";
-
-    // ==========================================
-    // 5. DEBUG PHONEPE AUTHENTICATION
-    // ==========================================
-
-    const expectedAuthorization = crypto
-      .createHash("sha256")
-      .update(`${webhookUsername}:${webhookPassword}`)
-      .digest("hex");
-
-    console.log("========== PHONEPE AUTH DEBUG ==========");
-    console.log(
-      "Received Authorization length:",
-      authorization.length
-    );
-    console.log(
-      "Expected Authorization length:",
-      expectedAuthorization.length
-    );
-    console.log(
-      "Authorization matches:",
-      authorization === expectedAuthorization
-    );
-    console.log("========================================");
-
-    // ==========================================
-    // 6. VALIDATE PHONEPE CALLBACK
-    // ==========================================
-
-    const callbackResponse = client.validateCallback(
-      webhookUsername,
-      webhookPassword,
-      authorization,
-      responseBodyString
-    );
-
-    console.log("✅ PhonePe callback verified");
-
-    // ==========================================
-    // 7. GET PHONEPE PAYLOAD
-    // ==========================================
-
-    const payload = callbackResponse?.payload;
-
-    console.log("PhonePe payload:", payload);
-
-    if (!payload) {
-      console.log("❌ PhonePe payload missing");
-
-      return res.status(400).json({
-        success: false,
-        message: "Payload missing",
-      });
-    }
-
-    // ==========================================
-    // 8. GET PAYMENT INFORMATION
-    // ==========================================
-
-    const state = payload?.state;
-
-    const merchantOrderId =
-      payload?.orderId ||
-      payload?.merchantOrderId;
-
-    console.log("Webhook order ID:", merchantOrderId);
-    console.log("Webhook state:", state);
-
-    // ==========================================
-    // 9. CHECK ORDER ID
-    // ==========================================
-
-    if (!merchantOrderId) {
-      console.log("❌ Merchant order ID missing");
-
-      return res.status(400).json({
-        success: false,
-        message: "Merchant order ID missing",
-      });
-    }
-
-    // ==========================================
-    // 10. PAYMENT COMPLETED
-    // ==========================================
-
-    if (state === "COMPLETED") {
+    if (!result?.success) {
       console.log(
-        "💰 Payment COMPLETED through webhook:",
-        merchantOrderId
+        "❌ Could not finalize payment:",
+        result?.reason
       );
 
-      try {
-        const result = await finalizePayment(
-          merchantOrderId
-        );
-
-        if (!result?.success) {
-          console.log(
-            "❌ Could not finalize payment:",
-            result?.reason
-          );
-
-          /*
-           * Return 200 so PhonePe doesn't keep retrying
-           * a webhook for an order that doesn't exist
-           * in our database.
-           */
-
-          return res.status(200).json({
-            success: false,
-            message: "Payment record not found",
-          });
-        }
-
-        console.log(
-          "✅ Webhook payment processing completed:",
-          merchantOrderId
-        );
-
-      } catch (finalizeError) {
-        console.error(
-          "❌ finalizePayment error:",
-          finalizeError
-        );
-
-        /*
-         * Return 500 so PhonePe can retry the webhook.
-         */
-        return res.status(500).json({
-          success: false,
-          message: "Payment finalization failed",
-        });
-      }
+      // If payment doesn't exist, don't keep retrying forever
+      return res.status(200).json({
+        success: false,
+        message: "Payment record not found",
+      });
     }
 
-    // ==========================================
-    // 11. PAYMENT FAILED
-    // ==========================================
+    console.log(
+      "✅ PAYMENT SUCCESSFULLY FINALIZED:",
+      merchantOrderId
+    );
 
-    else if (
-      state === "FAILED" ||
-      state === "DECLINED"
-    ) {
-      console.log(
-        "❌ Payment failed:",
-        merchantOrderId
-      );
+    console.log(
+      "✅ Webhook payment processing completed"
+    );
 
-      const result = await Payment.findOneAndUpdate(
-        {
-          transactionId: merchantOrderId,
-          payStatus: {
-            $ne: "paid",
-          },
-        },
-        {
-          $set: {
-            payStatus: "failed",
-          },
-        },
-        {
-          new: true,
-        }
-      );
+  } catch (finalizeError) {
+    console.error(
+      "❌ Error while finalizing payment:",
+      finalizeError
+    );
 
-      if (result) {
-        console.log(
-          "✅ Payment marked as failed:",
-          merchantOrderId
-        );
-      } else {
-        console.log(
-          "⚠️ Payment record not found or already paid:",
-          merchantOrderId
-        );
-      }
-    }
-
-    // ==========================================
-    // 12. OTHER STATES
-    // ==========================================
-
-    else {
-      console.log(
-        "⏳ Payment still processing:",
-        state,
-        "Order:",
-        merchantOrderId
-      );
-    }
-
-    // ==========================================
-    // 13. ACKNOWLEDGE WEBHOOK
-    // ==========================================
-
-    return res.status(200).json({
-      success: true,
+    // Return 500 so PhonePe can retry webhook
+    return res.status(500).json({
+      success: false,
+      message: "Payment finalization failed",
     });
+  }
+}
+
+// ==========================================
+// 11. PAYMENT FAILED
+// ==========================================
+
+else if (
+  state === "FAILED" ||
+  state === "DECLINED"
+) {
+  console.log(
+    "❌ PAYMENT FAILED THROUGH WEBHOOK:",
+    merchantOrderId
+  );
+
+  try {
+    const result = await Payment.findOneAndUpdate(
+      {
+        transactionId: merchantOrderId,
+        payStatus: {
+          $ne: "paid",
+        },
+      },
+      {
+        $set: {
+          payStatus: "failed",
+        },
+      },
+      {
+        new: true,
+      }
+    );
+
+    if (result) {
+      console.log(
+        "✅ Payment marked as FAILED:",
+        merchantOrderId
+      );
+    } else {
+      console.log(
+        "⚠️ Payment not found or already paid:",
+        merchantOrderId
+      );
+    }
 
   } catch (error) {
-
-    console.error("======================================");
-    console.error("❌ PHONEPE WEBHOOK ERROR");
-    console.error("======================================");
-
-    console.error("Error name:", error?.name);
-    console.error("Error message:", error?.message);
-    console.error("Error:", error);
+    console.error(
+      "❌ Error updating failed payment:",
+      error
+    );
 
     return res.status(500).json({
       success: false,
-      message: "Webhook processing failed",
+      message: "Failed payment processing error",
     });
   }
+}
+
+// ==========================================
+// 12. PAYMENT PENDING / OTHER STATES
+// ==========================================
+
+else {
+  console.log(
+    "⏳ Payment not completed yet"
+  );
+
+  console.log("State:", state);
+  console.log("Merchant Order ID:", merchantOrderId);
+}
+
+// ==========================================
+// 13. ACKNOWLEDGE PHONEPE WEBHOOK
+// ==========================================
+
+console.log(
+  "📨 Sending webhook acknowledgement"
+);
+
+return res.status(200).json({
+  success: true,
+});
+
+} catch (error) {
+
+console.error("\n======================================");
+console.error("❌ PHONEPE WEBHOOK ERROR");
+console.error("======================================");
+
+console.error("Error name:", error?.name);
+console.error("Error message:", error?.message);
+console.error("Full error:", error);
+
+// Return 500 so PhonePe can retry
+return res.status(500).json({
+  success: false,
+  message: "Webhook processing failed",
+});
+
+}
 };
-
-
-
-// export const phonePeWebhook = async (req, res) => {
-//   console.log("======================================");
-//   console.log("🔥 PHONEPE WEBHOOK HIT");
-//   console.log("======================================");
-
-//   console.log("BODY:", req.body);
-//   console.log("RAW BODY:", req.rawBody);
-//   console.log("AUTH:", req.headers.authorization);
-
-//   return res.status(200).json({
-//     success: true,
-//     message: "Webhook reached server"
-//   });
-// };
