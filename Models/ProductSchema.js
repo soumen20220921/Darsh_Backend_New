@@ -9,7 +9,8 @@ const productSchema = new mongoose.Schema({
   color: { type: String }, // formData.color
   blouseAvaliable: { type: Boolean }, // formData.blouseAvaliable
   stock: { type: Number, required: true }, // formData.stock
-  hotSell: { type: Boolean}, // formData.stock
+  hotSell: { type: Boolean}, 
+  preBooking: { type: Boolean},
   description: { type: String, required: true }, // formData.description
   specification: { type: String, required: true }, // formData.specification
   images: [
