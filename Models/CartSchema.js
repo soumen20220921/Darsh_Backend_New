@@ -10,7 +10,8 @@ const cartItemSchema = new mongoose.Schema({
     price: { type: Number, required: true },
     qty: { type: Number, required: true },
     size: { type: String},
-    imgSrc: { type: String, required: true }
+    imgSrc: { type: String, required: true },
+    preBooking: { type: Boolean, default: false }
 })
 
 const cartSchema = new mongoose.Schema({

@@ -1,7 +1,7 @@
 import { Cart } from "../Models/CartSchema.js"
 // add to cart api
 export const addToCart = async (req, res) => {
-    const { productId, title, price, qty,size, imgSrc } = req.body;
+    const { productId, title, price, qty,size, imgSrc,preBooking } = req.body;
     const userId = req?.user;
 
     if (!userId) {
@@ -19,7 +19,7 @@ export const addToCart = async (req, res) => {
             cart.items[itemIndex].qty += qty;
             cart.items[itemIndex].price += price;
         } else {
-            cart.items.push({ productId, title, price, qty,size, imgSrc });
+            cart.items.push({ productId, title, price, qty,size, imgSrc,preBooking });
         }
         const Result = await cart.save();
         return res.json({ message: "Item added to cart successfully", success: true, Result }); // Added return
