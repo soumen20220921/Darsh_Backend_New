@@ -17,8 +17,8 @@ const clientSecret =  "420f2f0e-41ed-4ba2-ab26-9a3bc8216460";
 // const clientSecret = "NDc3NDM1ZTItYjc2Yy00MTQ3LWFiZWUtMzg3YWU5MWZhYWRi";
 
 const clientVersion = 1;
-// const env = Env.PRODUCTION;
-const env = Env.SANDBOX; // Use TEST environment for development
+const env = Env.PRODUCTION;
+// const env = Env.SANDBOX; // Use TEST environment for development
 
 const client = StandardCheckoutClient.getInstance(
   clientId,
